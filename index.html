@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Max's Cookbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..900,50,1;1,9..144,400..900,50,1&family=Nunito:ital,wght@0,400..800;1,400..700&family=DM+Mono:wght@400;500&display=swap">
+</head>
+<body>
+<style>
+/* Layout: a kitchen counter. Checker-tile header band, recipe cards pinned like index cards,
+   one sticky ingredient card beside the steps. Tomato accent, basil + butter supporting. */
+:root{
+  --ground:#F3F6EA; --surface:#FFFFFF; --surface-2:#FBF4E3;
+  --ink:#232A1E; --muted:#5F6B55; --rule:#DCE3CC;
+  --accent:#D1442A; --accent-ink:#FFFFFF; --accent-soft:#FBE3DC;
+  --basil:#3B8A52; --basil-soft:#E1F0E2;
+  --butter:#F3C044; --butter-ink:#3A2A00; --butter-soft:#FCEFC6;
+  --plum:#7D3F72;
+  --tile-a:#D1442A; --tile-b:#C13A22; --on-tile:#FFF6EC;
+  --danger:#B3261E; --danger-soft:#FBE4E2;
+  --shadow:0 1px 2px rgba(35,42,30,.07),0 6px 18px rgba(35,42,30,.08);
+  --f-display:"Fraunces",ui-rounded,Georgia,"Times New Roman",serif;
+  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"DM Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#13160F; --surface:#1C2017; --surface-2:#232819;
+    --ink:#EFEADA; --muted:#A3AF95; --rule:#333A28;
+    --accent:#FF7B55; --accent-ink:#1B0C06; --accent-soft:#3A1E15;
+    --basil:#79C78C; --basil-soft:#1D2E21;
+    --butter:#E9BB42; --butter-ink:#241900; --butter-soft:#382D0F;
+    --plum:#CE91C3;
+    --tile-a:#8E2D1A; --tile-b:#7A2415; --on-tile:#FFF1E4;
+    --danger:#F28B82; --danger-soft:#3B1D1B;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 18px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#13160F; --surface:#1C2017; --surface-2:#232819;
+  --ink:#EFEADA; --muted:#A3AF95; --rule:#333A28;
+  --accent:#FF7B55; --accent-ink:#1B0C06; --accent-soft:#3A1E15;
+  --basil:#79C78C; --basil-soft:#1D2E21;
+  --butter:#E9BB42; --butter-ink:#241900; --butter-soft:#382D0F;
+  --plum:#CE91C3;
+  --tile-a:#8E2D1A; --tile-b:#7A2415; --on-tile:#FFF1E4;
+  --danger:#F28B82; --danger-soft:#3B1D1B;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 18px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Checker-tile header */
+.rim{
+  background-color:var(--tile-a);
+  background-image:
+    linear-gradient(45deg,var(--tile-b) 25%,transparent 25% 75%,var(--tile-b) 75%),
+    linear-gradient(45deg,var(--tile-b) 25%,transparent 25% 75%,var(--tile-b) 75%);
+  background-size:52px 52px;
+  background-position:0 0,26px 26px;
+  border-bottom:6px dashed var(--butter);
+  color:var(--on-tile);
+}
+.rim .wrap{padding-block:26px 24px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+.brand{all:unset;cursor:pointer;display:block}
+.brand:focus-visible{outline:3px solid var(--on-tile);outline-offset:4px}
+.brand-kicker{display:block;font-family:var(--f-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.9}
+.brand-name{display:block;font-family:var(--f-display);font-variation-settings:"SOFT" 60,"WONK" 1;font-weight:800;font-size:clamp(40px,7.4vw,70px);line-height:.92;letter-spacing:-.02em;margin-top:4px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.brand:hover .brand-name{transform:rotate(-1.2deg)}
+.brand-name{transition:transform .18s ease}
+.rim-note{margin:0;max-width:34ch;font-size:15.5px;opacity:.95}
+.rim-note .pan{display:inline-block;font-size:20px;animation:sizzle 2.6s ease-in-out infinite;transform-origin:70% 70%}
+@keyframes sizzle{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(-9deg)}95%{transform:rotate(7deg)}}
+
+main{padding-block:28px 96px}
+.notice{background:var(--surface);border:2px dashed var(--rule);border-radius:14px;padding:16px 18px;color:var(--muted);margin-bottom:24px}
+.notice strong{color:var(--ink)}
+
+/* Section heads */
+.section + .section{margin-top:44px}
+.section-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.section-h{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0 0 14px;display:flex;align-items:baseline;gap:10px}
+.section-top .section-h{margin:0}
+.count{font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--muted)}
+.eyebrow{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:500}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--rule);background:var(--surface);border-radius:999px;padding:7px 16px;font-weight:700;font-size:15px;cursor:pointer;line-height:1.2;transition:transform .14s ease,border-color .14s}
+.btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.sprout{background:var(--basil-soft);border-color:var(--basil);color:var(--ink)}
+.btn.sprout:hover{transform:translateY(-1px) rotate(-1.5deg)}
+.btn.danger{color:var(--danger);border-color:var(--danger);background:transparent}
+.btn.danger.solid{background:var(--danger);color:var(--surface)}
+.btn:disabled{opacity:.55;cursor:default}
+.linkish{all:unset;cursor:pointer;color:var(--accent);font-weight:800;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.linkish:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+
+/* Filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:18px}
+#search{flex:1 1 260px;min-width:0;background:var(--surface);border:2px solid var(--rule);border-radius:999px;padding:9px 16px;font-size:16px}
+#search:focus{border-color:var(--accent)}
+#search::placeholder{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--rule);background:var(--surface);border-radius:999px;padding:5px 13px;font-size:14px;font-weight:700;cursor:pointer;color:var(--muted);transition:transform .14s ease}
+.chip:hover{transform:translateY(-1px) rotate(-1.5deg);color:var(--ink)}
+.chip.on{background:var(--basil);border-color:var(--basil);color:#fff}
+
+/* Recipe cards, pinned like index cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:6px;background:var(--surface);border:2px solid var(--rule);border-radius:18px;padding:18px 20px 16px;box-shadow:var(--shadow);transition:transform .16s ease,border-color .16s;position:relative;min-width:0}
+.card:nth-child(3n+2){transform:rotate(.5deg)}
+.card:nth-child(3n){transform:rotate(-.6deg)}
+.card:hover{border-color:var(--accent);transform:translateY(-3px) rotate(-1deg)}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.card-badge{position:absolute;top:-14px;right:14px;width:40px;height:40px;display:grid;place-items:center;font-size:21px;background:var(--butter-soft);border:2px solid var(--butter);border-radius:50%;line-height:1}
+.card-title{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:700;font-size:22px;line-height:1.18;letter-spacing:-.01em;text-wrap:balance;padding-right:34px}
+.card-desc{color:var(--muted);font-size:15px;line-height:1.45}
+.card-meta{margin-top:auto;padding-top:10px;border-top:2px dotted var(--rule);font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.empty{color:var(--muted);padding:28px 0}
+
+.plan-card{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:auto 1fr;gap:4px 18px;align-items:center;background:var(--butter-soft);border:2px solid var(--butter);border-radius:18px;padding:16px 20px;transition:transform .16s ease}
+.plan-card:hover{transform:translateY(-2px) rotate(-.7deg)}
+.plan-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.plan-clock{grid-row:span 2;font-family:var(--f-mono);font-weight:500;font-size:13px;background:var(--butter);color:var(--butter-ink);border-radius:12px;padding:10px;text-align:center;line-height:1.2;min-width:70px}
+.plan-clock b{display:block;font-size:20px}
+.plan-title{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:700;font-size:21px;line-height:1.2}
+.plan-sub{color:var(--muted);font-size:14.5px}
+.plan-list{display:grid;gap:12px}
+
+/* Recipe page */
+.crumb{margin-bottom:18px}
+.r-head{max-width:760px}
+.r-title{font-family:var(--f-display);font-variation-settings:"SOFT" 60,"WONK" 1;font-weight:800;font-size:clamp(34px,5.6vw,54px);line-height:1.02;letter-spacing:-.025em;margin:8px 0 12px;text-wrap:balance}
+.r-title .emoji{font-size:.78em;margin-right:.18em}
+.r-desc{color:var(--muted);font-size:18px;margin:0;max-width:62ch}
+.metabar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin:22px 0 28px;padding:12px 0;border-block:2px dotted var(--rule)}
+.stepper{display:inline-flex;align-items:center;border:2px solid var(--rule);border-radius:999px;background:var(--surface);overflow:hidden}
+.stepper button{all:unset;cursor:pointer;width:38px;height:38px;display:grid;place-items:center;font-size:20px;font-weight:700;color:var(--accent)}
+.stepper button:hover{background:var(--accent-soft)}
+.stepper button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.stepper output{font-family:var(--f-mono);font-weight:500;font-size:14px;min-width:104px;text-align:center;font-variant-numeric:tabular-nums}
+.meta-pill{font-family:var(--f-mono);font-size:13.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.spacer{flex:1}
+.btn[aria-pressed="true"]{background:var(--butter);border-color:var(--butter);color:var(--butter-ink)}
+
+.r-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:780px){.r-grid{grid-template-columns:minmax(0,1fr);gap:28px}}
+.ing-box{background:var(--surface);border:2px solid var(--rule);border-radius:18px;padding:18px 18px 12px;position:sticky;top:calc(16px + env(safe-area-inset-top,0px));box-shadow:var(--shadow)}
+@media (max-width:780px){.ing-box{position:static}}
+.box-h{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:700;font-size:21px;margin:0 0 8px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.box-h .linkish{font-size:13px;font-family:var(--f-body)}
+.ing-group{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:14px 0 4px}
+.ing-list{list-style:none;margin:0;padding:0}
+.ing{border-top:1px dotted var(--rule)}
+.ing:first-child{border-top:0}
+.ing label{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start;padding:8px 0;cursor:pointer;font-size:16px;line-height:1.35}
+.ing input{appearance:none;width:22px;height:22px;border:2px solid var(--rule);border-radius:8px;margin:1px 0 0;display:grid;place-items:center;cursor:pointer;background:var(--surface)}
+.ing input:hover{border-color:var(--basil)}
+.ing input:checked{background:var(--basil);border-color:var(--basil);animation:pop .28s ease}
+.ing input:checked::after{content:"";width:10px;height:5px;border:solid #fff;border-width:0 0 3px 3px;transform:translateY(-1px) rotate(-45deg)}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.32) rotate(-8deg)}100%{transform:scale(1)}}
+.amt{font-family:var(--f-mono);font-weight:500;font-size:14.5px;color:var(--ink);font-variant-numeric:tabular-nums;margin-right:6px;white-space:nowrap}
+.ing.done .ing-text{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--basil);text-decoration-thickness:2px}
+.ing.done .amt{color:var(--muted)}
+
+/* Basket progress */
+.basket{display:flex;align-items:center;gap:10px;margin:2px 0 10px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.basket-bar{flex:1;height:9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--rule);overflow:hidden;min-width:0}
+.basket-bar i{display:block;height:100%;background:var(--basil);transition:width .3s ease}
+.basket.full{color:var(--basil);font-weight:500}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.step{display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding:16px 0;border-top:1px dotted var(--rule)}
+.step:first-child{border-top:0;padding-top:0}
+.step-n{all:unset;cursor:pointer;font-family:var(--f-display);font-variation-settings:"SOFT" 60,"WONK" 1;font-weight:800;font-size:20px;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-variant-numeric:tabular-nums;transition:transform .16s ease}
+.step-n:hover{transform:scale(1.08) rotate(-6deg)}
+.step-n:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.step.done .step-n{background:var(--basil);color:#fff;animation:pop .28s ease}
+.step.done .step-t,.step.done .step-body{color:var(--muted)}
+.step.done .step-t{text-decoration:line-through;text-decoration-color:var(--basil);text-decoration-thickness:2px}
+.step-t{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:700;font-size:20px;line-height:1.25;margin:6px 0 4px}
+.step p{margin:0;max-width:62ch}
+.timer{margin-top:10px;display:inline-flex;align-items:center;gap:7px;border:2px solid var(--rule);background:var(--surface);border-radius:999px;padding:5px 13px 5px 10px;font-family:var(--f-mono);font-size:13px;font-weight:500;cursor:pointer;color:var(--ink);font-variant-numeric:tabular-nums}
+.timer:hover{border-color:var(--accent)}
+.timer svg{width:15px;height:15px;flex:none}
+.timer.running{background:var(--butter);border-color:var(--butter);color:var(--butter-ink)}
+.timer.done{background:var(--danger);border-color:var(--danger);color:#fff;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.05)}}
+
+.notes{margin-top:36px;background:var(--surface-2);border:2px dashed var(--rule);border-radius:18px;padding:16px 20px}
+.notes h2{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-size:19px;margin:0 0 6px}
+.notes p{margin:0;white-space:pre-line;max-width:70ch}
+
+/* Plan page */
+.plan-recipes{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.timeline{list-style:none;margin:0;padding:0;max-width:760px}
+.tl{display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;position:relative;padding-bottom:22px}
+.tl::before{content:"";position:absolute;left:35px;top:36px;bottom:0;width:3px;background:var(--rule)}
+.tl:last-child::before{display:none}
+.tl-at{font-family:var(--f-mono);font-weight:500;font-size:14px;text-align:center;background:var(--surface);border:2px solid var(--rule);border-radius:999px;padding:5px 0;height:max-content;position:relative;z-index:1;font-variant-numeric:tabular-nums}
+.tl-body h3{font-family:var(--f-display);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:700;font-size:19px;margin:3px 0 4px;line-height:1.25}
+.tl-body ul{margin:0;padding-left:18px}
+.tl-body li{margin:3px 0}
+.tl-body li::marker{color:var(--accent)}
+
+/* Edit form */
+.form{max-width:760px;display:grid;gap:18px}
+.form h1{font-family:var(--f-display);font-variation-settings:"SOFT" 60,"WONK" 1;font-weight:800;font-size:clamp(30px,4.6vw,42px);letter-spacing:-.02em;margin:4px 0 0}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px}
+.field{display:grid;gap:6px}
+.field label{font-weight:800;font-size:15px}
+.field input,.field textarea{width:100%;background:var(--surface);border:2px solid var(--rule);border-radius:12px;padding:10px 12px;font-size:16px}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;line-height:1.5}
+.field textarea.mono{font-family:var(--f-mono);font-size:14px}
+.hint{font-size:13.5px;color:var(--muted);line-height:1.45}
+.hint code{font-family:var(--f-mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--rule);border-radius:6px;padding:0 4px}
+.form-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:6px}
+.form-err{color:var(--danger);background:var(--danger-soft);border-radius:12px;padding:10px 14px;font-weight:700}
+.confirm{display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--danger);font-weight:700}
+
+/* Timer tray */
+.tray{position:fixed;right:0;bottom:0;padding:16px;padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:20;max-width:100%}
+.tray-item{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--ground);border-radius:14px;padding:9px 14px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:14px}
+.tray-item b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--butter)}
+.tray-item.done{background:var(--danger);color:#fff}
+.tray-item.done b{color:#fff}
+.tray-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:44ch}
+
+.foot{margin-top:56px;padding-top:16px;border-top:2px dotted var(--rule);color:var(--muted);font-size:14px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="rim">
+  <div class="wrap">
+    <button class="brand" id="brand" type="button" aria-label="Max's Cookbook, all recipes">
+      <span class="brand-kicker">Recipe box</span>
+      <span class="brand-name">Max's Cookbook</span>
+    </button>
+    <p class="rim-note"><span class="pan" aria-hidden="true">🍳</span> Things I've cooked and want to make again, scaled to however many I'm feeding.</p>
+  </div>
+</header>
+<main class="wrap" id="main" aria-live="polite"></main>
+<div class="tray" id="tray" hidden></div>
+
+<script>
+(() => {
+"use strict";
+
+const SEED_RECIPES = [{"baseServings": 8, "category": "Soups", "createdAt": "2026-09-27T12:00:00.000Z", "description": "Chuck roast seared hard, then braised low with red wine, root vegetables, and potatoes until it falls apart.", "ingredients": [{"amount": 3.5, "name": "beef chuck roast, cut into 1 1/2-inch cubes", "unit": "lb"}, {"amount": 2, "name": "salt", "unit": "tsp"}, {"amount": 1.5, "name": "black pepper", "unit": "tsp"}, {"amount": 3, "name": "vegetable oil", "unit": "tbsp"}, {"amount": 2, "name": "yellow onions, diced"}, {"amount": 4, "name": "carrots, sliced into coins"}, {"amount": 4, "name": "celery stalks, sliced"}, {"amount": 6, "name": "garlic cloves, minced"}, {"amount": 3, "name": "tomato paste", "unit": "tbsp"}, {"amount": 3, "name": "all-purpose flour", "unit": "tbsp"}, {"amount": 1.3333, "name": "dry red wine", "unit": "cup"}, {"amount": 8, "name": "beef broth", "unit": "cup"}, {"amount": 1.5, "name": "Worcestershire sauce", "unit": "tbsp"}, {"amount": 3, "name": "bay leaves"}, {"amount": 1.5, "name": "dried thyme", "unit": "tsp"}, {"amount": 1.5, "name": "russet potatoes, peeled and cubed", "unit": "lb"}, {"amount": 1.5, "name": "frozen peas", "unit": "cup"}, {"amount": 3, "name": "fresh parsley or chives, chopped", "unit": "tbsp"}], "notes": "No wine? Use more broth plus 1 tbsp red wine vinegar.\nKeeps 3 to 4 days in the fridge and freezes well. Better the next day.", "steps": [{"text": "Pat the beef dry and season with the salt and pepper.", "title": "Season the beef"}, {"minutes": 20, "text": "Heat the oil in a Dutch oven over medium-high. Sear the beef in batches, without crowding, until deeply browned on all sides. Set aside.", "title": "Sear the beef"}, {"minutes": 7, "text": "Lower the heat to medium. Add the onions, carrots, and celery and cook until softened, scraping up the browned bits.", "title": "Soften the vegetables"}, {"minutes": 2, "text": "Stir in the garlic, tomato paste, and flour. Cook until fragrant and the paste darkens.", "title": "Build the base"}, {"minutes": 3, "text": "Pour in the wine and simmer, scraping the bottom, until reduced by about half.", "title": "Deglaze"}, {"minutes": 90, "text": "Return the beef and its juices. Add the broth, Worcestershire, bay leaves, and thyme. Bring to a simmer, cover, and cook on low until the beef is nearly tender.", "title": "Braise"}, {"minutes": 30, "text": "Add the potatoes and simmer uncovered until the potatoes and beef are fully tender. Russets break down a little, which thickens the broth.", "title": "Add the potatoes"}, {"minutes": 2, "text": "Pull the bay leaves. Stir in the peas for a couple of minutes, adjust the salt, and top with parsley.", "title": "Finish"}], "time": "About 3 hr", "title": "Braised Beef and Vegetable Soup", "updatedAt": "2026-09-27T12:00:00.000Z", "id": "braised-beef-soup"}, {"baseServings": 4, "category": "Bowls", "createdAt": "2026-10-12T12:00:00.000Z", "description": "Six whole-food ingredients built around beans, greens and olive oil. Each bowl is a full meal: about 1,100 calories and 40g fiber.", "ingredients": [{"amount": 3, "name": "cans black beans (15 oz), rinsed"}, {"amount": 2, "name": "large sweet potatoes, cut into 3/4-inch cubes"}, {"amount": 1.5, "name": "dry quinoa, rinsed", "unit": "cup"}, {"amount": 1, "name": "bunch kale, stems removed, chopped"}, {"amount": 2, "name": "avocados"}, {"amount": 1, "name": "large red onion, thinly sliced"}, {"amount": 0.5, "group": "Dressing and seasoning", "name": "lime juice (about 4 limes), divided", "unit": "cup"}, {"amount": 5, "group": "Dressing and seasoning", "name": "extra virgin olive oil, divided", "unit": "tbsp"}, {"amount": 2, "group": "Dressing and seasoning", "name": "ground cumin", "unit": "tsp"}, {"amount": 1, "group": "Dressing and seasoning", "name": "smoked paprika", "unit": "tsp"}, {"amount": 1.5, "group": "Dressing and seasoning", "name": "salt, divided", "unit": "tsp"}, {"amount": 0.5, "group": "Dressing and seasoning", "name": "black pepper", "unit": "tsp"}], "notes": "Per bowl (approximate): 1,100 calories, 35 to 40g protein, 40g+ fiber.\nKeeps 4 days in the fridge; add the avocado when you eat.\nSwap in salmon a couple times a week if you want omega-3s.", "steps": [{"text": "Toss the onion with half the lime juice and a big pinch of salt. Let it sit while you cook; it softens and turns pink.", "title": "Pickle the onion"}, {"minutes": 28, "text": "Heat the oven to 425°F. Toss the sweet potatoes with 1 1/2 tbsp oil, 1 tsp cumin, the smoked paprika, and 1/2 tsp salt. Roast in one layer, flipping halfway, until browned.", "title": "Roast the sweet potatoes"}, {"minutes": 20, "text": "Bring the quinoa and 3 cups water to a boil. Cover, simmer on low 15 minutes, then rest covered 5 minutes and fluff.", "title": "Cook the quinoa"}, {"text": "Put the kale in a big bowl with 1 tbsp oil and a pinch of salt. Squeeze and rub it for 1 to 2 minutes until it darkens and softens. This keeps it tender for days.", "title": "Massage the kale"}, {"text": "Whisk the rest of the lime juice, the remaining oil, the remaining cumin and salt, and the pepper.", "title": "Make the dressing"}, {"text": "Divide the kale into 4 containers. Top with quinoa, beans, sweet potatoes, and the pickled onion. Drizzle with dressing now or keep it on the side; the kale holds up either way.", "title": "Pack the bowls"}, {"text": "Add half an avocado, sliced, right before eating.", "title": "Serve"}], "time": "About 45 min", "title": "Black Bean, Sweet Potato and Kale Longevity Bowls", "updatedAt": "2026-10-12T12:00:00.000Z", "id": "longevity-bean-bowls"}, {"baseServings": 8, "category": "Mains", "createdAt": "2026-09-27T12:00:00.000Z", "description": "Potato and cheddar pierogi, boiled, then pan-fried in butter and tossed with crispy bacon and caramelized onions.", "ingredients": [{"amount": 6, "group": "Dough", "name": "all-purpose flour", "unit": "cup"}, {"amount": 2, "group": "Dough", "name": "salt", "unit": "tsp"}, {"amount": 2, "group": "Dough", "name": "large eggs"}, {"amount": 1, "group": "Dough", "name": "sour cream", "unit": "cup"}, {"amount": 1, "group": "Dough", "name": "warm water", "unit": "cup"}, {"amount": 4, "group": "Dough", "name": "butter, melted", "unit": "tbsp"}, {"amount": 3, "group": "Filling", "name": "russet potatoes, peeled and cubed", "unit": "lb"}, {"amount": 8, "group": "Filling", "name": "sharp cheddar, shredded", "unit": "oz"}, {"amount": 4, "group": "Filling", "name": "butter", "unit": "tbsp"}, {"amount": 1.5, "group": "Filling", "name": "salt", "unit": "tsp"}, {"amount": 0.5, "group": "Filling", "name": "black pepper", "unit": "tsp"}, {"amount": 1, "group": "To finish", "name": "thick-cut bacon, chopped", "unit": "lb"}, {"amount": 4, "group": "To finish", "name": "large yellow onions, thinly sliced"}, {"amount": 4, "group": "To finish", "name": "butter, for frying", "unit": "tbsp"}, {"amount": 1, "group": "To finish", "name": "sour cream, for serving", "unit": "cup"}, {"amount": 0.25, "group": "To finish", "name": "chives or parsley, chopped", "unit": "cup"}], "notes": "Makes about 72 pierogi at 8 servings.\nWant more whole grain next time? Swap up to half the flour for white whole wheat and rest the dough a little longer.\nTo freeze: spread boiled but unfried pierogi on a sheet pan, freeze, then bag. Fry straight from frozen with a splash of water and a lid for the first few minutes.", "steps": [{"minutes": 30, "text": "Whisk the flour with the salt. Add the eggs, sour cream, warm water, and melted butter. Stir, then knead about 5 minutes until smooth and soft. If it's sticky, dust in a little more flour. Wrap and rest so it relaxes and rolls out easily.", "title": "Make the dough"}, {"minutes": 15, "text": "Boil the potatoes in salted water until fork-tender.", "title": "Boil the potatoes"}, {"text": "Drain and mash the potatoes with the cheddar, butter, salt, and pepper. Let cool enough to handle.", "title": "Make the filling"}, {"minutes": 10, "text": "Cook the bacon in a large skillet over medium heat until crisp. Lift it out with a slotted spoon and leave the fat in the pan.", "title": "Cook the bacon"}, {"minutes": 40, "text": "Add the onions to the bacon fat. Cook low and slow, stirring every few minutes, until deep golden. Set aside with the bacon.", "title": "Caramelize the onions"}, {"text": "Roll the dough about 1/8 inch thick and cut 3-inch circles. Put a heaping teaspoon of filling in each, fold, and pinch the edges firmly. Dab the edge with water if it won't seal.", "title": "Roll and fill"}, {"minutes": 4, "text": "Boil in batches in salted water. Once they float, cook 1 to 2 minutes more, then lift out.", "title": "Boil the pierogi"}, {"minutes": 6, "text": "Melt the butter in the onion skillet over medium-high heat. Fry the pierogi until golden on both sides, then toss with the bacon and onions. Serve with sour cream and chives.", "title": "Pan-fry and finish"}], "time": "About 2 hr", "title": "Potato Cheddar Pierogi with Bacon and Caramelized Onions", "updatedAt": "2026-09-27T19:00:00.000Z", "id": "pierogi-bacon-onion"}, {"baseServings": 4, "category": "Mains", "createdAt": "2026-10-26T12:00:00.000Z", "updatedAt": "2026-10-26T12:00:00.000Z", "title": "Spinach, Tomato and Red Pepper Quiche", "description": "A deep-dish quiche loaded with eggs, greens and roasted vegetables. One quarter is a full meal: about 700 calories and 40g protein.", "time": "About 1 hr 20 min", "ingredients": [{"amount": 1, "name": "9-inch deep-dish pie crust, whole wheat if you can find it"}, {"amount": 8, "name": "large eggs"}, {"amount": 1, "name": "whole milk", "unit": "cup"}, {"amount": 10, "name": "fresh spinach (or 10 oz frozen, thawed and squeezed dry)", "unit": "oz"}, {"amount": 1, "name": "large red bell pepper, diced"}, {"amount": 1, "name": "pint cherry tomatoes, halved"}, {"amount": 1, "name": "medium yellow onion, diced"}, {"amount": 3, "name": "garlic cloves, minced"}, {"amount": 4, "name": "feta, crumbled", "unit": "oz"}, {"amount": 3, "name": "gruyère or sharp cheddar, shredded", "unit": "oz"}, {"amount": 2, "group": "Oil and seasoning", "name": "extra virgin olive oil", "unit": "tbsp"}, {"amount": 1, "group": "Oil and seasoning", "name": "salt, divided", "unit": "tsp"}, {"amount": 1, "group": "Oil and seasoning", "name": "black pepper, divided", "unit": "tsp"}, {"amount": 0.25, "group": "Oil and seasoning", "name": "ground nutmeg", "unit": "tsp"}, {"amount": 0.5, "group": "Oil and seasoning", "name": "red pepper flakes (optional)", "unit": "tsp"}], "steps": [{"title": "Heat the oven", "text": "Heat the oven to 375°F. Put a sheet pan on the lower rack to catch drips and to give the crust a hot surface to sit on."}, {"title": "Blind bake the crust", "minutes": 15, "text": "Prick the crust all over with a fork, line it with parchment, fill with dried beans or pie weights, and bake until the edges are set and lightly golden. Lift out the weights and parchment. This is the step that keeps the bottom from going soggy."}, {"title": "Roast the tomatoes", "minutes": 20, "text": "While the crust bakes, toss the halved cherry tomatoes with 1 tbsp olive oil, 1/4 tsp salt and a few grinds of pepper. Roast cut side up on a second sheet pan until they collapse and the edges darken. Roasting instead of using them raw is what keeps the quiche from going watery."}, {"title": "Cook the vegetables", "minutes": 10, "text": "Heat the remaining 1 tbsp oil in a large skillet over medium. Cook the onion and bell pepper with 1/4 tsp salt until soft and starting to brown, 7 to 8 minutes. Add the garlic and cook 1 minute more."}, {"title": "Wilt the spinach", "minutes": 4, "text": "Add the spinach by the handful and stir until fully wilted. Tip the whole pan into a strainer and press hard with a spatula to squeeze out the liquid, then spread it on a plate to cool for a few minutes. Dry filling, custardy quiche."}, {"title": "Mix the custard", "text": "Whisk the eggs, milk, remaining 1/2 tsp salt, remaining pepper, the nutmeg and the pepper flakes until completely smooth, with no streaks of white left."}, {"title": "Build it", "text": "Scatter the gruyère over the bottom of the crust, then the spinach mixture, then the feta. Pour the custard over slowly and let it settle into the gaps. Arrange the roasted tomatoes on top, cut side up."}, {"title": "Bake", "minutes": 45, "text": "Bake on the hot sheet pan until the center is just set and barely jiggles when you nudge the pan, 40 to 50 minutes. If the crust edge browns too fast, tent it with foil."}, {"title": "Rest before cutting", "minutes": 15, "text": "Let it rest. The custard firms up as it cools and the slices come out clean instead of sliding apart."}], "notes": "Per quarter (approximate): 700 calories, 40g protein, 6g fiber.\nKeeps 4 days in the fridge. Reheat slices at 325°F for 15 min, not in the microwave, or the crust goes limp.\nSwap ins that work: mushrooms (cook them down hard first), broccoli, swiss chard, goat cheese instead of feta.\nTo skip the crust, oil a 9-inch pie dish well and bake 35 to 40 min. Saves about 150 calories a slice.\nThe two rules for quiche: dry the filling, and pull it from the oven while the center still jiggles a little.", "id": "spinach-tomato-pepper-quiche"}];
+const SEED_PLANS = [{"blocks": [{"at": "0:00", "items": ["Mix, knead 5 minutes, wrap, and let rest."], "title": "Pierogi dough"}, {"at": "0:10", "items": ["Cube and season the beef.", "Dice 2 onions, 4 carrots, and 4 celery stalks. Mince 6 garlic cloves."], "title": "Soup prep"}, {"at": "0:25", "items": ["Brown in batches, about 20 minutes. Don't crowd the pot."], "title": "Sear the beef"}, {"at": "0:45", "items": ["Soften the vegetables, add the garlic, tomato paste, and flour, then deglaze with the wine."], "title": "Build the soup"}, {"at": "1:00", "items": ["90 minutes, covered, on low.", "Peel and cube all the potatoes. Soup potatoes go in a bowl of cold water; pierogi potatoes go on to boil.", "While they boil, chop the bacon and slice the other 4 onions."], "title": "Start the braise"}, {"at": "1:20", "items": ["Drain, mash with the cheddar, butter, salt, and pepper. Let cool."], "title": "Pierogi filling"}, {"at": "1:25", "items": ["Crisp the bacon, lift it out, then start the onions low in the fat. About 40 minutes; stir every few minutes."], "title": "Bacon and onions"}, {"at": "1:40", "items": ["The big hands-on block, about 50 minutes for 72. Stir the onions between batches."], "title": "Roll and fill pierogi"}, {"at": "2:30", "items": ["Drain the soup potatoes, add them to the braise, and simmer uncovered 30 minutes.", "Bring a big pot of salted water to a boil. Boil all the pierogi in batches, then spread them on a sheet pan to cool."], "title": "Two things at once"}, {"at": "3:00", "items": ["Soup: pull the bay leaves, stir in the peas, and season.", "Fry only tonight's pierogi in butter and toss with some of the bacon and onions."], "title": "Finish and eat"}, {"at": "After", "items": ["Soup: portion into containers. Fridge 4 servings and freeze the rest. It keeps 3 to 4 days in the fridge.", "Pierogi: keep them boiled but unfried. Fridge a few days' worth; freeze the rest on the sheet pan, then bag.", "Bacon and onions: separate container. For each meal, fry pierogi about 5 minutes and toss with a scoop."], "title": "Pack it up"}], "createdAt": "2026-09-27T12:00:00.000Z", "duration": "3:15", "intro": "Eight servings of each: dinner tonight, the rest for the week. The soup braise is the longest step, so everything else fits inside it.", "recipeIds": ["pierogi-bacon-onion", "braised-beef-soup"], "title": "Pierogi and beef soup meal prep", "totalTime": "About 3 hr 15 min", "id": "sunday-meal-prep"}];
+
+/* ---------- tiny DOM helper ---------- */
+function h(tag, props, ...kids){
+  const el = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)){
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k.startsWith("on") && typeof v === "function") el.addEventListener(k.slice(2), v);
+    else if (k === "value" || k === "checked") el[k] = v;
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(Infinity)){
+    if (kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const $ = (s, r = document) => r.querySelector(s);
+const svgClock = () => {
+  const ns = "http://www.w3.org/2000/svg";
+  const s = document.createElementNS(ns, "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("fill", "none");
+  s.setAttribute("stroke", "currentColor"); s.setAttribute("stroke-width", "2.2");
+  s.setAttribute("stroke-linecap", "round"); s.setAttribute("aria-hidden", "true");
+  const c = document.createElementNS(ns, "circle"); c.setAttribute("cx", "12"); c.setAttribute("cy", "13"); c.setAttribute("r", "8"); c.setAttribute("fill", "none");
+  const p = document.createElementNS(ns, "path"); p.setAttribute("d", "M12 9v4l2.5 2M9.5 2.5h5");
+  s.append(c, p); return s;
+};
+
+/* ---------- food emoji ---------- */
+const EMOJI = [
+  [/quiche|frittata|omelet|egg/i, "🥚"], [/pierogi|dumpling|gnocchi/i, "🥟"],
+  [/soup|stew|chili|broth|ramen/i, "🍲"], [/salad|slaw/i, "🥗"], [/bowl/i, "🥣"],
+  [/pasta|spaghetti|noodle|lasagna/i, "🍝"], [/pizza|flatbread/i, "🍕"],
+  [/taco|burrito|quesadilla/i, "🌮"], [/burger|patty/i, "🍔"], [/sandwich|melt|toast/i, "🥪"],
+  [/bread|focaccia|roll|bun|dough/i, "🍞"], [/cake|cookie|pie|brownie|dessert|tart/i, "🍰"],
+  [/chicken|poultry|wing/i, "🍗"], [/beef|steak|brisket|short rib/i, "🥩"],
+  [/pork|bacon|sausage/i, "🥓"], [/fish|salmon|tuna|shrimp|cod/i, "🐟"],
+  [/rice|curry|stir.?fry/i, "🍚"], [/bean|lentil|chickpea/i, "🫘"],
+  [/potato|fries/i, "🥔"], [/mushroom/i, "🍄"], [/tomato/i, "🍅"],
+  [/breakfast|pancake|waffle/i, "🥞"], [/drink|smoothie|juice/i, "🥤"],
+];
+function foodEmoji(r){
+  const hay = [r.title, r.category, r.description].filter(Boolean).join(" ");
+  for (const [re, e] of EMOJI) if (re.test(hay)) return e;
+  return "🥘";
+}
+
+/* ---------- amounts ---------- */
+function gcd(a, b){ return b ? gcd(b, a % b) : a; }
+function frac(x){
+  if (!isFinite(x) || x <= 0) return "";
+  let whole = Math.floor(x + 1e-9), rem = x - whole;
+  let best = { n: 0, d: 1, err: rem };
+  const dens = whole >= 4 ? [2, 3, 4] : [2, 3, 4, 8];
+  for (const d of dens) for (let n = 0; n <= d; n++){
+    const err = Math.abs(rem - n / d);
+    if (err < best.err - 1e-9) best = { n, d, err };
+  }
+  if (best.n === best.d){ whole += 1; best.n = 0; }
+  if (best.n){ const g = gcd(best.n, best.d); best.n /= g; best.d /= g; }
+  const fs = best.n ? best.n + "/" + best.d : "";
+  if (!whole && !fs) return "pinch";
+  return whole ? (fs ? whole + " " + fs : String(whole)) : fs;
+}
+const PLURAL = { cup: "cups", can: "cans", pinch: "pinches" };
+function qty(amount, unit, factor = 1){
+  const a = Number(amount);
+  if (!a) return "";
+  const x = a * factor;
+  const n = frac(x);
+  if (!unit) return n;
+  const u = x > 1.01 && PLURAL[unit] ? PLURAL[unit] : unit;
+  return n + " " + u;
+}
+function parseAmount(s){
+  s = s.trim();
+  let m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/); if (m) return +m[1] + (+m[2] / +m[3]);
+  m = s.match(/^(\d+)\/(\d+)$/); if (m) return +m[1] / +m[2];
+  const n = parseFloat(s); return isFinite(n) ? n : null;
+}
+const UNITS = { cup:"cup",cups:"cup",c:"cup",tbsp:"tbsp",tbs:"tbsp",tablespoon:"tbsp",tablespoons:"tbsp",tsp:"tsp",teaspoon:"tsp",teaspoons:"tsp",lb:"lb",lbs:"lb",pound:"lb",pounds:"lb",oz:"oz",ounce:"oz",ounces:"oz",g:"g",gram:"g",grams:"g",kg:"kg",ml:"ml",l:"l",liter:"l",liters:"l",pinch:"pinch",pinches:"pinch",can:"can",cans:"can",qt:"qt",quart:"qt",quarts:"qt",pint:"pint",pints:"pint" };
+function parseIngredients(text){
+  const out = []; let group = "";
+  for (let line of text.split("\n")){
+    line = line.replace(/^[-*•]\s*/, "").trim();
+    if (!line) continue;
+    if (line.endsWith(":")){ group = line.slice(0, -1).trim(); continue; }
+    const m = line.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s+(.*)$/);
+    let amount = null, unit = "", name = line;
+    if (m){
+      amount = parseAmount(m[1]);
+      const rest = m[2];
+      const um = rest.match(/^([A-Za-z]+)\.?\s+(.*)$/);
+      if (um && UNITS[um[1].toLowerCase()]){ unit = UNITS[um[1].toLowerCase()]; name = um[2]; }
+      else name = rest;
+    }
+    const ing = { name: name.trim() };
+    if (amount) ing.amount = amount;
+    if (unit) ing.unit = unit;
+    if (group) ing.group = group;
+    out.push(ing);
+  }
+  return out;
+}
+function ingredientsToText(list){
+  let g = "", lines = [];
+  for (const i of list || []){
+    const ig = i.group || "";
+    if (ig !== g){ if (lines.length) lines.push(""); if (ig) lines.push(ig + ":"); g = ig; }
+    lines.push([i.amount ? frac(i.amount) : "", i.unit || "", i.name].filter(Boolean).join(" "));
+  }
+  return lines.join("\n");
+}
+function parseSteps(text){
+  const out = [];
+  for (let line of text.split("\n")){
+    line = line.replace(/^\s*(\d+[.)]|[-*•])\s*/, "").trim();
+    if (!line) continue;
+    let minutes = null;
+    const tm = line.match(/\((\d+(?:\.\d+)?)\s*(min|mins|minutes|hr|hrs|hour|hours)\)\s*$/i);
+    if (tm){ minutes = Math.round(parseFloat(tm[1]) * (/^h/i.test(tm[2]) ? 60 : 1)); line = line.slice(0, tm.index).trim(); }
+    let title = "", body = line;
+    const c = line.indexOf(": ");
+    if (c > 0 && c <= 40 && !line.slice(0, c).includes(".")){ title = line.slice(0, c).trim(); body = line.slice(c + 2).trim(); }
+    const s = { text: body };
+    if (title) s.title = title;
+    if (minutes) s.minutes = minutes;
+    out.push(s);
+  }
+  return out;
+}
+function stepsToText(list){
+  return (list || []).map(s => (s.title ? s.title + ": " : "") + s.text + (s.minutes ? " (" + s.minutes + " min)" : "")).join("\n");
+}
+function fmtMin(m){
+  if (m < 60) return m + " min";
+  const hr = Math.floor(m / 60), mm = m % 60;
+  return hr + " hr" + (mm ? " " + mm + " min" : "");
+}
+function fmtClock(sec){
+  const hr = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  const pad = n => String(n).padStart(2, "0");
+  return hr ? hr + ":" + pad(m) + ":" + pad(s) : m + ":" + pad(s);
+}
+function slugify(s){ return (s || "recipe").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "recipe"; }
+
+/* ---------- state ---------- */
+const S = {
+  view: "home", id: null, q: "", cat: "All",
+  servings: {}, checked: new Set(), stepsDone: new Set(), lastPick: null, timers: {}, tick: null, ac: null,
+  wake: null, wakeFailed: false, confirmDelete: false,
+  status: "loading", loadedR: false, loadedP: false, hash: "",
+  canEdit: null,
+};
+let recipes = [], plans = [], db = null;
+try { S.hash = (location.hash || "").slice(1); } catch {}
+
+const showEdit = () => S.canEdit !== false && !!db;
+const byTitle = (a, b) => (a.title || "").localeCompare(b.title || "");
+
+function go(view, id){
+  S.view = view; S.id = id || null; S.confirmDelete = false;
+  $("#main").dataset.view = "";
+  try {
+    const tok = (view === "recipe" || view === "plan") ? id : "";
+    history.replaceState(null, "", tok ? "#" + tok : location.pathname + location.search);
+  } catch {}
+  render();
+  try { window.scrollTo({ top: 0 }); } catch {}
+}
+
+/* ---------- views ---------- */
+function viewHome(){
+  const cats = ["All", ...[...new Set(recipes.map(r => r.category).filter(Boolean))].sort()];
+  if (!cats.includes(S.cat)) S.cat = "All";
+  return h("div", null,
+    
+    S.status === "error" ? h("p", { class: "notice" }, h("strong", null, "Couldn't load recipes. "), "Reload the page to try again.") : null,
+    plans.length ? h("section", { class: "section" },
+      h("h2", { class: "section-h" }, "Cook days"),
+      h("div", { class: "plan-list" }, plans.slice().sort(byTitle).map(planCard))
+    ) : null,
+    h("section", { class: "section" },
+      h("div", { class: "section-top" },
+        h("h2", { class: "section-h" }, "Recipes", h("span", { class: "count" }, S.loadedR ? String(recipes.length) : "")),
+        h("span", { style: "display:flex;flex-wrap:wrap;gap:8px" },
+          recipes.length > 1 ? h("button", { class: "btn sprout", type: "button", onclick: () => {
+            const pool = recipes.filter(r => r.id !== S.lastPick);
+            const pick = pool[Math.floor(Math.random() * pool.length)] || recipes[0];
+            S.lastPick = pick.id; go("recipe", pick.id);
+          } }, "🎲 Feed me something") : null,
+          showEdit() ? h("button", { class: "btn primary", type: "button", onclick: () => startEdit(null) }, "+ Add recipe") : null
+        )
+      ),
+      h("div", { class: "filters" },
+        h("label", { class: "sr", for: "search" }, "Search recipes"),
+        h("input", { id: "search", type: "search", placeholder: "Search by name or ingredient", value: S.q, autocomplete: "off",
+          oninput: e => { S.q = e.target.value; const l = $("#list"); if (l) l.replaceChildren(...listItems()); } }),
+        cats.length > 2 ? h("div", { class: "chips", role: "group", "aria-label": "Filter by category" },
+          cats.map(c => h("button", { type: "button", class: "chip" + (S.cat === c ? " on" : ""), "aria-pressed": String(S.cat === c), onclick: () => { S.cat = c; render(); } }, c))
+        ) : null
+      ),
+      h("div", { id: "list", class: "cards" }, listItems())
+    ),
+    h("p", { class: "foot" }, "Cooked something good? Add it with the button above, or ask Claude in chat to write it up for you.")
+  );
+}
+function listItems(){
+  if (!S.loadedR) return [h("p", { class: "empty" }, S.status === "loading" ? "Loading recipes…" : "No recipes to show.")];
+  const q = S.q.trim().toLowerCase();
+  const list = recipes.filter(r => (S.cat === "All" || r.category === S.cat) && (!q ||
+    (r.title || "").toLowerCase().includes(q) || (r.description || "").toLowerCase().includes(q) ||
+    (r.ingredients || []).some(i => (i.name || "").toLowerCase().includes(q)))).sort(byTitle);
+  if (!recipes.length) return [h("p", { class: "empty" }, "No recipes yet. Add your first one.")];
+  if (!list.length) return [h("p", { class: "empty" }, "Nothing matches “" + S.q.trim() + "”.")];
+  return list.map(r => h("button", { class: "card", type: "button", onclick: () => go("recipe", r.id) },
+    h("span", { class: "card-badge", "aria-hidden": "true" }, foodEmoji(r)),
+    h("span", { class: "eyebrow" }, r.category || "Recipe"),
+    h("span", { class: "card-title" }, r.title || "Untitled"),
+    r.description ? h("span", { class: "card-desc" }, r.description) : null,
+    h("span", { class: "card-meta" }, [r.time, r.baseServings ? "Serves " + r.baseServings : null, (r.ingredients || []).length + " ingredients"].filter(Boolean).join("  ·  "))
+  ));
+}
+function planCard(p){
+  const names = (p.recipeIds || []).map(id => recipes.find(r => r.id === id)?.title).filter(Boolean);
+  const blocks = p.blocks || [];
+  return h("button", { class: "plan-card", type: "button", onclick: () => go("plan", p.id) },
+    p.duration
+      ? h("span", { class: "plan-clock", "aria-hidden": "true" }, h("b", null, p.duration), "hrs")
+      : h("span", { class: "plan-clock", "aria-hidden": "true" }, h("b", null, String(blocks.length)), "steps"),
+    h("span", { class: "plan-title" }, p.title || "Cook day"),
+    h("span", { class: "plan-sub" }, [p.totalTime, names.join(" + ")].filter(Boolean).join("  ·  "))
+  );
+}
+function notFound(kind){
+  return h("div", null,
+    h("div", { class: "crumb" }, h("button", { class: "linkish", type: "button", onclick: () => go("home") }, "← All recipes")),
+    h("p", { class: "empty" }, S.loadedR ? "That " + kind + " isn't in the cookbook anymore." : "Loading…")
+  );
+}
+
+function basketText(got, total){
+  if (!got) return "Nothing in the basket yet";
+  if (got === total) return "Basket full. Start cooking 🧑‍🍳";
+  return got + " of " + total + " in the basket";
+}
+function basketBar(r, ings){
+  const got = ings.filter((_, i) => S.checked.has(r.id + ":" + i)).length;
+  return h("div", { class: "basket" + (got === ings.length ? " full" : ""), id: "basket" },
+    h("span", { class: "basket-bar", "aria-hidden": "true" }, h("i", { style: "width:" + Math.round(got / ings.length * 100) + "%" })),
+    h("span", { id: "basket-label" }, basketText(got, ings.length)));
+}
+function updateBasket(r, ings){
+  const box = $("#basket"); if (!box) return;
+  const got = ings.filter((_, i) => S.checked.has(r.id + ":" + i)).length;
+  box.classList.toggle("full", got === ings.length);
+  const fill = box.querySelector(".basket-bar i");
+  if (fill) fill.style.width = Math.round(got / ings.length * 100) + "%";
+  const lab = $("#basket-label"); if (lab) lab.textContent = basketText(got, ings.length);
+}
+
+function viewRecipe(){
+  const r = recipes.find(x => x.id === S.id);
+  if (!r) return notFound("recipe");
+  const base = Number(r.baseServings) || 4;
+  const sv = S.servings[r.id] ?? base;
+  const f = sv / base;
+  const ings = r.ingredients || [];
+  const groups = [];
+  ings.forEach((ing, i) => {
+    const g = ing.group || "";
+    if (!groups.length || groups[groups.length - 1].name !== g) groups.push({ name: g, items: [] });
+    groups[groups.length - 1].items.push([i, ing]);
+  });
+  const anyChecked = ings.some((_, i) => S.checked.has(r.id + ":" + i));
+  const setSv = n => { S.servings[r.id] = Math.max(1, Math.min(60, n)); render(); };
+
+  return h("article", null,
+    h("div", { class: "crumb" }, h("button", { class: "linkish", type: "button", onclick: () => go("home") }, "← All recipes")),
+    h("header", { class: "r-head" },
+      h("span", { class: "eyebrow" }, r.category || "Recipe"),
+      h("h1", { class: "r-title" }, h("span", { class: "emoji", "aria-hidden": "true" }, foodEmoji(r)), r.title || "Untitled"),
+      r.description ? h("p", { class: "r-desc" }, r.description) : null
+    ),
+    h("div", { class: "metabar" },
+      h("div", { class: "stepper", role: "group", "aria-label": "Servings" },
+        h("button", { type: "button", "aria-label": "Fewer servings", onclick: () => setSv(sv - 1) }, "−"),
+        h("output", { "aria-live": "polite" }, sv + (sv === 1 ? " serving" : " servings")),
+        h("button", { type: "button", "aria-label": "More servings", onclick: () => setSv(sv + 1) }, "+")
+      ),
+      sv !== base ? h("button", { class: "linkish", type: "button", onclick: () => setSv(base) }, "Reset to " + base) : null,
+      r.time ? h("span", { class: "meta-pill" }, svgClock(), r.time) : null,
+      h("span", { class: "spacer" }),
+      ("wakeLock" in navigator) ? h("button", { class: "btn", id: "wake", type: "button", "aria-pressed": String(!!S.wake), disabled: S.wakeFailed, onclick: toggleWake }, S.wakeFailed ? "Screen lock not available" : S.wake ? "Screen stays on" : "Keep screen on") : null,
+      showEdit() ? h("button", { class: "btn", type: "button", onclick: () => startEdit(r) }, "Edit") : null
+    ),
+    h("div", { class: "r-grid" },
+      h("aside", { class: "ing-box", "aria-label": "Ingredients" },
+        h("h2", { class: "box-h" }, "Ingredients",
+          anyChecked ? h("button", { class: "linkish", type: "button", onclick: () => { ings.forEach((_, i) => S.checked.delete(r.id + ":" + i)); render(); } }, "Uncheck all") : null),
+        ings.length ? basketBar(r, ings) : null,
+        groups.map(g => [
+          g.name ? h("h3", { class: "ing-group" }, g.name) : null,
+          h("ul", { class: "ing-list" }, g.items.map(([i, ing]) => {
+            const key = r.id + ":" + i, id = "ing-" + r.id + "-" + i, on = S.checked.has(key);
+            const a = qty(ing.amount, ing.unit, f);
+            return h("li", { class: "ing" + (on ? " done" : "") },
+              h("label", { for: id },
+                h("input", { type: "checkbox", id, checked: on, onchange: e => {
+                  e.target.checked ? S.checked.add(key) : S.checked.delete(key);
+                  e.target.closest(".ing").classList.toggle("done", e.target.checked);
+                  updateBasket(r, ings);
+                } }),
+                h("span", { class: "ing-text" }, a ? h("span", { class: "amt" }, a) : null, ing.name)
+              )
+            );
+          }))
+        ])
+      ),
+      h("section", { "aria-label": "Steps" },
+        h("h2", { class: "box-h" }, "Steps", h("span", { class: "count" }, "tap a number as you go")),
+        h("ol", { class: "steps" }, (r.steps || []).map((s, i) => {
+          const skey = r.id + "#" + i, sdone = S.stepsDone.has(skey);
+          return h("li", { class: "step" + (sdone ? " done" : "") },
+            h("button", { class: "step-n", type: "button", "aria-pressed": String(sdone),
+              "aria-label": "Mark step " + (i + 1) + (sdone ? " not done" : " done"),
+              onclick: e => {
+                const li = e.target.closest(".step");
+                const now = !S.stepsDone.has(skey);
+                now ? S.stepsDone.add(skey) : S.stepsDone.delete(skey);
+                li.classList.toggle("done", now);
+                e.target.setAttribute("aria-pressed", String(now));
+                e.target.setAttribute("aria-label", "Mark step " + (i + 1) + (now ? " not done" : " done"));
+                e.target.textContent = now ? "✓" : String(i + 1);
+              } }, sdone ? "✓" : String(i + 1)),
+            h("div", { class: "step-body" },
+              s.title ? h("h3", { class: "step-t" }, s.title) : null,
+              h("p", null, s.text),
+              s.minutes ? timerBtn(r, i, s) : null
+            )
+          );
+        }))
+      )
+    ),
+    r.notes ? h("aside", { class: "notes" }, h("h2", null, "Notes"), h("p", null, r.notes)) : null
+  );
+}
+
+function viewPlan(){
+  const p = plans.find(x => x.id === S.id);
+  if (!p) return notFound("plan");
+  const linked = (p.recipeIds || []).map(id => recipes.find(r => r.id === id)).filter(Boolean);
+  return h("article", null,
+    h("div", { class: "crumb" }, h("button", { class: "linkish", type: "button", onclick: () => go("home") }, "← All recipes")),
+    h("header", { class: "r-head" },
+      h("span", { class: "eyebrow" }, "Cook day plan"),
+      h("h1", { class: "r-title" }, p.title || "Cook day"),
+      p.intro ? h("p", { class: "r-desc" }, p.intro) : null,
+      linked.length ? h("div", { class: "plan-recipes" }, linked.map(r => h("button", { class: "btn", type: "button", onclick: () => go("recipe", r.id) }, r.title + " →"))) : null
+    ),
+    h("div", { class: "metabar" },
+      p.totalTime ? h("span", { class: "meta-pill" }, svgClock(), p.totalTime) : null,
+      h("span", { class: "meta-pill" }, "Times are elapsed from when you start")
+    ),
+    h("ol", { class: "timeline" }, (p.blocks || []).map(b => h("li", { class: "tl" },
+      h("span", { class: "tl-at" }, b.at || ""),
+      h("div", { class: "tl-body" },
+        h("h3", null, b.title || ""),
+        (b.items || []).length ? h("ul", null, b.items.map(it => h("li", null, it))) : null
+      )
+    )))
+  );
+}
+
+/* ---------- edit ---------- */
+function startEdit(r){ S.editing = r ? r.id : null; go("edit", r ? r.id : null); }
+function viewEdit(){
+  const r = S.editing ? recipes.find(x => x.id === S.editing) : null;
+  const cats = [...new Set(recipes.map(x => x.category).filter(Boolean))].sort();
+  const field = (id, label, input, hint) => h("div", { class: "field" }, h("label", { for: id }, label), input, hint ? h("div", { class: "hint" }, hint) : null);
+  const form = h("form", { class: "form", novalidate: true, onsubmit: onSave },
+    h("div", { class: "crumb" }, h("button", { class: "linkish", type: "button", onclick: () => r ? go("recipe", r.id) : go("home") }, "← Cancel")),
+    h("h1", null, r ? "Edit recipe" : "New recipe"),
+    field("f-title", "Name", h("input", { id: "f-title", required: true, value: r?.title || "", placeholder: "Chicken paprikash" })),
+    h("div", { class: "row" },
+      field("f-cat", "Category", h("input", { id: "f-cat", list: "f-cats", value: r?.category || "", placeholder: "Mains" })),
+      field("f-serv", "Serves", h("input", { id: "f-serv", type: "number", min: "1", max: "60", inputmode: "numeric", value: String(r?.baseServings || 4) })),
+      field("f-time", "Total time", h("input", { id: "f-time", value: r?.time || "", placeholder: "About 1 hour" }))
+    ),
+    h("datalist", { id: "f-cats" }, cats.map(c => h("option", { value: c }))),
+    field("f-desc", "Short description", h("textarea", { id: "f-desc", rows: "2", value: r?.description || "" })),
+    field("f-ings", "Ingredients", h("textarea", { id: "f-ings", class: "mono", rows: "12", value: ingredientsToText(r?.ingredients),
+      placeholder: "Dough:\n3 cups flour\n1 tsp salt\n2 large eggs\n\nFilling:\n1 1/2 lb potatoes, cubed" }),
+      ["One per line, amount first: ", h("code", null, "1 1/2 cups flour"), ". A line ending in a colon starts a group: ", h("code", null, "Filling:"), ". Amounts scale with servings."]),
+    field("f-steps", "Steps", h("textarea", { id: "f-steps", rows: "12", value: stepsToText(r?.steps),
+      placeholder: "Make the dough: Mix the flour and salt, then knead until smooth. (30 min)\nBoil the potatoes: Cook until fork-tender. (15 min)" }),
+      ["One step per line. Start with a short title and a colon if you want one. End with a time like ", h("code", null, "(30 min)"), " or ", h("code", null, "(1.5 hr)"), " to get a timer button."]),
+    field("f-notes", "Notes", h("textarea", { id: "f-notes", rows: "3", value: r?.notes || "", placeholder: "Swaps, storage, what I'd change next time" })),
+    h("p", { class: "form-err", id: "form-err", hidden: true }),
+    h("div", { class: "form-actions" },
+      h("button", { class: "btn primary", type: "submit", id: "f-save" }, r ? "Save changes" : "Add to cookbook"),
+      h("button", { class: "btn", type: "button", onclick: () => r ? go("recipe", r.id) : go("home") }, "Cancel"),
+      h("span", { class: "spacer" }),
+      r ? h("span", { id: "del-slot" }, deleteControl(r)) : null
+    )
+  );
+  return form;
+}
+function deleteControl(r){
+  if (!S.confirmDelete) return h("button", { class: "btn danger", type: "button", onclick: () => { S.confirmDelete = true; $("#del-slot").replaceChildren(deleteControl(r)); } }, "Delete recipe");
+  return h("span", { class: "confirm" }, "Delete for good?",
+    h("button", { class: "btn danger solid", type: "button", onclick: () => onDelete(r) }, "Delete"),
+    h("button", { class: "btn", type: "button", onclick: () => { S.confirmDelete = false; $("#del-slot").replaceChildren(deleteControl(r)); } }, "Keep it"));
+}
+function formError(msg){ const e = $("#form-err"); if (!e) return; e.textContent = msg; e.hidden = !msg; if (msg) e.scrollIntoView({ block: "nearest" }); }
+function writeError(e){
+  const code = e && e.code;
+  if (code === "invalid_argument") return "Only the cookbook's owner or editors can save changes.";
+  if (code === "quota_exceeded") return "The cookbook is full. Delete a recipe to make room.";
+  return "Couldn't save. Check your connection and try again.";
+}
+async function onSave(ev){
+  ev.preventDefault();
+  const v = id => ($("#" + id)?.value || "").trim();
+  const title = v("f-title");
+  if (!title){ formError("Give the recipe a name."); $("#f-title").focus(); return; }
+  const ingredients = parseIngredients(v("f-ings"));
+  const steps = parseSteps(v("f-steps"));
+  if (!ingredients.length && !steps.length){ formError("Add at least one ingredient or step."); return; }
+  if (!db){ formError("Saving only works when the cookbook is open in Claude."); return; }
+  const existing = S.editing ? recipes.find(x => x.id === S.editing) : null;
+  const now = new Date().toISOString();
+  const serv = Math.max(1, Math.min(60, parseInt(v("f-serv"), 10) || 4));
+  const data = { title, category: v("f-cat"), description: v("f-desc"), baseServings: serv, time: v("f-time"),
+    ingredients, steps, notes: v("f-notes"), createdAt: existing?.createdAt || now, updatedAt: now };
+  const id = existing ? existing.id : slugify(title) + "-" + Math.random().toString(36).slice(2, 6);
+  const btn = $("#f-save"); btn.disabled = true; btn.textContent = "Saving…"; formError("");
+  try {
+    await db.collection("recipes").doc(id).set(data);
+    const i = recipes.findIndex(x => x.id === id);
+    const rec = { id, ...data };
+    if (i >= 0) recipes[i] = rec; else recipes.push(rec);
+    if (existing && S.servings[id] != null && existing.baseServings !== serv) delete S.servings[id];
+    go("recipe", id);
+  } catch (e){
+    btn.disabled = false; btn.textContent = existing ? "Save changes" : "Add to cookbook";
+    formError(writeError(e));
+    if (e && e.code === "invalid_argument") S.canEdit = false;
+  }
+}
+async function onDelete(r){
+  try {
+    await db.doc("recipes/" + r.id).delete();
+    recipes = recipes.filter(x => x.id !== r.id);
+    go("home");
+  } catch (e){ formError(writeError(e)); }
+}
+
+/* ---------- timers ---------- */
+function timerBtn(r, i, s){
+  const key = r.id + "-" + i;
+  return h("button", { class: "timer", type: "button", "data-timer": key, "aria-label": "Timer for " + (s.title || "step " + (i + 1)),
+    onclick: () => toggleTimer(key, s.minutes, (r.title || "") + ": " + (s.title || "Step " + (i + 1)), r.id) },
+    svgClock(), h("span", { class: "tl-label" }, fmtMin(s.minutes)));
+}
+function toggleTimer(key, minutes, label, recipeId){
+  if (S.timers[key]){ delete S.timers[key]; }
+  else {
+    try { S.ac = S.ac || new (window.AudioContext || window.webkitAudioContext)(); S.ac.resume && S.ac.resume(); } catch {}
+    S.timers[key] = { end: Date.now() + minutes * 60000, minutes, label, recipeId, done: false };
+  }
+  if (!S.tick && Object.keys(S.timers).length) S.tick = setInterval(tickTimers, 1000);
+  tickTimers();
+}
+function beep(){
+  const ac = S.ac; if (!ac) return;
+  try {
+    const t0 = ac.currentTime;
+    for (let k = 0; k < 3; k++){
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, t0 + k * 0.45);
+      g.gain.exponentialRampToValueAtTime(0.25, t0 + k * 0.45 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + k * 0.45 + 0.3);
+      o.connect(g).connect(ac.destination); o.start(t0 + k * 0.45); o.stop(t0 + k * 0.45 + 0.32);
+    }
+  } catch {}
+}
+function tickTimers(){
+  const now = Date.now();
+  document.querySelectorAll("[data-timer]").forEach(el => {
+    const t = S.timers[el.dataset.timer];
+    el.classList.toggle("running", !!t && !t.done);
+    el.classList.toggle("done", !!t && t.done);
+    const lab = el.querySelector(".tl-label");
+    if (!t){
+      const step = recipes.find(r => el.dataset.timer.startsWith(r.id + "-"));
+      const idx = step ? +el.dataset.timer.slice(step.id.length + 1) : -1;
+      const m = step?.steps?.[idx]?.minutes; if (m) lab.textContent = fmtMin(m);
+    }
+  });
+  const tray = $("#tray"); const items = [];
+  for (const [key, t] of Object.entries(S.timers)){
+    const left = Math.max(0, Math.round((t.end - now) / 1000));
+    if (left === 0 && !t.done){ t.done = true; beep(); }
+    const el = document.querySelector('[data-timer="' + key + '"]');
+    if (el){ el.classList.toggle("running", !t.done); el.classList.toggle("done", t.done); el.querySelector(".tl-label").textContent = t.done ? "Time's up" : fmtClock(left) + " left"; }
+    items.push(h("button", { class: "tray-item" + (t.done ? " done" : ""), type: "button", title: "Open recipe",
+      onclick: () => { if (t.done) { delete S.timers[key]; tickTimers(); } if (S.view !== "recipe" || S.id !== t.recipeId) go("recipe", t.recipeId); } },
+      h("b", null, t.done ? "Done" : fmtClock(left)), h("span", null, t.label)));
+  }
+  tray.replaceChildren(...items); tray.hidden = !items.length;
+  if (!items.length && S.tick){ clearInterval(S.tick); S.tick = null; }
+}
+
+/* ---------- wake lock ---------- */
+async function toggleWake(){
+  try {
+    if (S.wake){ await S.wake.release(); S.wake = null; }
+    else {
+      S.wake = await navigator.wakeLock.request("screen");
+      S.wake.addEventListener("release", () => { S.wake = null; updateWake(); });
+    }
+  } catch { S.wake = null; S.wakeFailed = true; }
+  updateWake();
+}
+function updateWake(){
+  const b = $("#wake"); if (!b) return;
+  b.setAttribute("aria-pressed", String(!!S.wake)); b.disabled = S.wakeFailed;
+  b.textContent = S.wakeFailed ? "Screen lock not available" : S.wake ? "Screen stays on" : "Keep screen on";
+}
+
+/* ---------- render ---------- */
+function render(){
+  const main = $("#main");
+  if (S.view === "edit" && main.dataset.view === "edit") return; // don't wipe a form in progress
+  const a = document.activeElement, keepSearch = a && a.id === "search", pos = keepSearch ? a.selectionStart : null;
+  const v = S.view === "recipe" ? viewRecipe() : S.view === "plan" ? viewPlan() : S.view === "edit" ? viewEdit() : viewHome();
+  main.replaceChildren(v);
+  main.dataset.view = S.view;
+  if (keepSearch){ const s = $("#search"); if (s){ s.focus(); try { s.setSelectionRange(pos, pos); } catch {} } }
+  tickTimers();
+}
+function tryHash(){
+  if (!S.hash || !S.loadedR || !S.loadedP) return;
+  const t = S.hash; S.hash = "";
+  if (recipes.some(r => r.id === t)) go("recipe", t);
+  else if (plans.some(p => p.id === t)) go("plan", t);
+}
+
+$("#brand").addEventListener("click", () => go("home"));
+render();
+
+/* ---------- data ---------- */
+(async () => {
+  try { db = await window.claude?.use?.("db"); } catch { db = null; }
+  if (!db){
+    recipes = SEED_RECIPES.slice(); plans = SEED_PLANS.slice();
+    S.status = "static"; S.loadedR = true; S.loadedP = true; render(); tryHash(); return;
+  }
+  S.status = "ok";
+  const fail = () => { S.status = "error"; S.loadedR = true; render(); };
+  db.collection("recipes").onSnapshot(snap => {
+    recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    S.loadedR = true; render(); tryHash();
+  }, fail);
+  db.collection("plans").onSnapshot(snap => {
+    plans = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    S.loadedP = true; render(); tryHash();
+  }, () => { S.loadedP = true; render(); });
+  render();
+})();
+(async () => {
+  try {
+    const u = await window.claude?.use?.("user");
+    S.canEdit = u ? await u.canEdit() : null;
+  } catch { S.canEdit = null; }
+  render();
+})();
+})();
+</script>
+
+</body>
+</html>
